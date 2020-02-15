@@ -6,7 +6,7 @@
 package _charnames;
 use strict;
 use warnings;
-our $VERSION = '1.46';
+our $VERSION = '1.47';
 use unicore::Name;    # mktables-generated algorithmically-defined names
 
 use bytes ();          # for $bytes::hint_bits
@@ -631,6 +631,18 @@ sub _loose_regcomp_lookup {
   return lookup_name($_[0], 0, 1,
                      1  # Always use :loose matching
                     );
+}
+
+sub _get_names_info {
+  # For use only by regcomp.c to compile \p{name=/.../}
+  $txt = do "unicore/Name.pl" unless $txt;
+
+  # These are pointers to our data to keep from slinging large data structures
+  # around.  Make sure the caller doesn't change them
+  Internals::SvREADONLY($txt, 1);
+  Internals::SvREADONLY(@charnames::code_points_ending_in_code_point, 1);
+
+  return ( \$txt, \@charnames::code_points_ending_in_code_point );
 }
 
 sub import
