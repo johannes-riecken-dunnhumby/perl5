@@ -13525,6 +13525,8 @@ S_regatom(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth)
 	/* Special Escapes */
 	case 'A':
 	    RExC_seen_zerolen++;
+            /* Under wildcards, this is changed to match \n; should be
+             * invisible to the user, as they have to compile under /m */
             if (RExC_pm_flags & PMf_WILDCARD) {
                 ret = reg_node(pRExC_state, MBOL);
             }
@@ -13567,6 +13569,7 @@ S_regatom(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth)
             }
 	case 'Z':
             if (RExC_pm_flags & PMf_WILDCARD) {
+                /* See comment under \A above */
                 ret = reg_node(pRExC_state, MEOL);
             }
             else {
@@ -13577,6 +13580,7 @@ S_regatom(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth)
 	    goto finish_meta_pat;
 	case 'z':
             if (RExC_pm_flags & PMf_WILDCARD) {
+                /* See comment under \A above */
                 ret = reg_node(pRExC_state, MEOL);
             }
             else {
