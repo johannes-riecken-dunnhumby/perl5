@@ -4231,6 +4231,7 @@ Gid_t getegid (void);
 
 #  define DEBUG_f(a) DEBUG__(DEBUG_f_TEST, a)
 
+/* For re_comp.c, re_exec.c, assume -Dr has been specified */
 #  ifndef PERL_EXT_RE_BUILD
 #    define DEBUG_r(a) DEBUG__(DEBUG_r_TEST, a)
 #  else
