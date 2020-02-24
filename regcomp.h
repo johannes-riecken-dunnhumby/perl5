@@ -1059,7 +1059,7 @@ re.pm, especially to the documentation.
 #define RE_DEBUG_EXECUTE_TRIE      0x000400
 
 /* Extra */
-#define RE_DEBUG_EXTRA_MASK              0x1FF0000
+#define RE_DEBUG_EXTRA_MASK              0x3FF0000
 #define RE_DEBUG_EXTRA_TRIE              0x0010000
 #define RE_DEBUG_EXTRA_OFFSETS           0x0020000
 #define RE_DEBUG_EXTRA_OFFDEBUG          0x0040000
@@ -1068,6 +1068,7 @@ re.pm, especially to the documentation.
 #define RE_DEBUG_EXTRA_BUFFERS           0x0400000
 #define RE_DEBUG_EXTRA_GPOS              0x0800000
 #define RE_DEBUG_EXTRA_DUMP_PRE_OPTIMIZE 0x1000000
+#define RE_DEBUG_EXTRA_WILDCARD          0x2000000
 /* combined */
 #define RE_DEBUG_EXTRA_STACK             0x0280000
 
@@ -1128,6 +1129,8 @@ re.pm, especially to the documentation.
 
 #define DEBUG_DUMP_PRE_OPTIMIZE_r(x) DEBUG_r( \
     if (DEBUG_v_TEST || (re_debug_flags & RE_DEBUG_EXTRA_DUMP_PRE_OPTIMIZE)) x )
+
+#define isDEBUG_WILDCARD (DEBUG_v_TEST || (re_debug_flags & RE_DEBUG_EXTRA_WILDCARD))
 
 /* initialization */
 /* get_sv() can return NULL during global destruction. */

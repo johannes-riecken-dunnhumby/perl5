@@ -22999,11 +22999,18 @@ S_get_extended_utf8_msg(pTHX_ const UV cp)
 #endif /* end of ! PERL_IN_XSUB_RE */
 
 STATIC REGEXP *
-S_compile_wildcard(pTHX_ const char * name, const STRLEN len,
+S_compile_wildcard(pTHX_ const char * subpattern, const STRLEN len,
                          const bool ignore_case)
 {
+    /* Pretends that the input subpattern is qr/subpattern/aam, compiling it
+     * possibly with /i if the 'ignore_case' parameter is true.  Sets up the
+     * debugging info */
+
     U32 flags = PMf_MULTILINE|PMf_WILDCARD;
     REGEXP * subpattern_re;
+    bool turned_off_PL_debug = FALSE;
+    bool turned_off_RE_DEBUG_FLAGS = FALSE;
+    GET_RE_DEBUG_FLAGS_DECL;
 
     PERL_ARGS_ASSERT_COMPILE_WILDCARD;
 
@@ -23012,10 +23019,28 @@ S_compile_wildcard(pTHX_ const char * name, const STRLEN len,
     }
     set_regex_charset(&flags, REGEX_ASCII_MORE_RESTRICTED_CHARSET);
 
-    subpattern_re = re_op_compile_wrapper(sv_2mortal(newSVpvn(name, len)),
+    //PerlIO_printf(Perl_debug_log, "%s: %d: flags=%x, !=%d\n", __FILE__, __LINE__, re_debug_flags, ! isDEBUG_WILDCARD);
+    if (! isDEBUG_WILDCARD) {
+        if (DEBUG_r_TEST) {
+            PL_debug &= ~ DEBUG_r_FLAG;
+            turned_off_PL_debug = TRUE;
+        }
+        else if (re_debug_flags) {
+            turned_off_RE_DEBUG_FLAGS = TRUE;
+            sv_setuv_mg(get_sv(RE_DEBUG_FLAGS, GV_ADD), 0);
+        }
+    }
+
+    subpattern_re = re_op_compile_wrapper(sv_2mortal(newSVpvn(subpattern, len)),
                                         /* Like in op.c, we copy the compile
                                          * time pm flags to the rx ones */
                                         (flags & RXf_PMf_COMPILETIME), flags);
+    if (turned_off_PL_debug) {
+        PL_debug |= DEBUG_r_FLAG;
+    }
+    else if (turned_off_RE_DEBUG_FLAGS) {
+        sv_setuv_mg(get_sv(RE_DEBUG_FLAGS, GV_ADD), re_debug_flags);
+    }
 
     assert(subpattern_re);  /* Should have died if didn't compile successfully */
     return subpattern_re;
@@ -23025,11 +23050,34 @@ STATIC I32
 S_execute_wildcard(pTHX_ REGEXP * const prog, char* stringarg, char *strend,
 	 char *strbeg, SSize_t minend, SV *screamer, U32 nosave)
 {
+    bool turned_off_PL_debug = FALSE;
+    bool turned_off_RE_DEBUG_FLAGS = FALSE;
     I32 result;
+    GET_RE_DEBUG_FLAGS_DECL;
+
+    //PerlIO_printf(Perl_debug_log, "%s: %d: flags=%x, !=%d\n", __FILE__, __LINE__, re_debug_flags, ! isDEBUG_WILDCARD);
+    if (! isDEBUG_WILDCARD) {
+        if (DEBUG_r_TEST) {
+            PL_debug &= ~ DEBUG_r_FLAG;
+            turned_off_PL_debug = TRUE;
+        }
+        else if (re_debug_flags) {
+            turned_off_RE_DEBUG_FLAGS = TRUE;
+            sv_setuv_mg(get_sv(RE_DEBUG_FLAGS, GV_ADD), 0);
+        }
+    }
 
     PERL_ARGS_ASSERT_EXECUTE_WILDCARD;
 
-    result = pregexec(prog, stringarg, strend, strbeg, minend, screamer, nosave);
+    result = CALLREGEXEC(prog, stringarg, strend, strbeg, minend, screamer,
+                         NULL, nosave);
+
+    if (turned_off_PL_debug) {
+        PL_debug |= DEBUG_r_FLAG;
+    }
+    else if (turned_off_RE_DEBUG_FLAGS) {
+        sv_setuv_mg(get_sv(RE_DEBUG_FLAGS, GV_ADD), re_debug_flags);
+    }
 
     return result;
 }
