@@ -25042,7 +25042,7 @@ S_handle_names_wildcard(pTHX_ const char * wname, /* wildcard name to match */
         SV * name = newSVpvn(prefix, prefix_len);
 
         /* There are a maximum of 7 bytes in the suffix of a hangul syllable */
-        if (    prog->minlen <= SvCUR(name) + 7
+        if (    prog->minlen <= (SSize_t) SvCUR(name) + 7
             &&  prog->maxlen > 0
             && ( ! must
                 || SvCUR(must) == 0
@@ -25122,7 +25122,7 @@ S_handle_names_wildcard(pTHX_ const char * wname, /* wildcard name to match */
             sv_catpvs(name, "0");
         }
 
-        if (    prog->minlen <= SvCUR(name)
+        if (    prog->minlen <= (SSize_t) SvCUR(name)
             &&  prog->maxlen > 0
             && ( ! must
                 || SvCUR(must) == 0
