@@ -23037,7 +23037,6 @@ S_compile_wildcard(pTHX_ const char * subpattern, const STRLEN len,
     }
     set_regex_charset(&flags, REGEX_ASCII_MORE_RESTRICTED_CHARSET);
 
-    //PerlIO_printf(Perl_debug_log, "%s: %d: flags=%x, !=%d\n", __FILE__, __LINE__, re_debug_flags, ! isDEBUG_WILDCARD);
     if (! isDEBUG_WILDCARD) {
         if (DEBUG_r_TEST) {
             PL_debug &= ~ DEBUG_r_FLAG;
@@ -23073,7 +23072,6 @@ S_execute_wildcard(pTHX_ REGEXP * const prog, char* stringarg, char *strend,
     I32 result;
     GET_RE_DEBUG_FLAGS_DECL;
 
-    //PerlIO_printf(Perl_debug_log, "%s: %d: flags=%x, !=%d\n", __FILE__, __LINE__, re_debug_flags, ! isDEBUG_WILDCARD);
     if (! isDEBUG_WILDCARD) {
         if (DEBUG_r_TEST) {
             PL_debug &= ~ DEBUG_r_FLAG;
