@@ -23026,9 +23026,12 @@ S_compile_wildcard(pTHX_ const char * subpattern, const STRLEN len,
 
     U32 flags = PMf_MULTILINE|PMf_WILDCARD;
     REGEXP * subpattern_re;
+
+#ifdef DEBUGGING
+    GET_RE_DEBUG_FLAGS_DECL;
     bool turned_off_PL_debug = FALSE;
     bool turned_off_RE_DEBUG_FLAGS = FALSE;
-    GET_RE_DEBUG_FLAGS_DECL;
+#endif
 
     PERL_ARGS_ASSERT_COMPILE_WILDCARD;
 
@@ -23037,6 +23040,7 @@ S_compile_wildcard(pTHX_ const char * subpattern, const STRLEN len,
     }
     set_regex_charset(&flags, REGEX_ASCII_MORE_RESTRICTED_CHARSET);
 
+#ifdef DEBUGGING
     if (! isDEBUG_WILDCARD) {
         if (DEBUG_r_TEST) {
             PL_debug &= ~ DEBUG_r_FLAG;
@@ -23047,17 +23051,20 @@ S_compile_wildcard(pTHX_ const char * subpattern, const STRLEN len,
             sv_setuv_mg(get_sv(RE_DEBUG_FLAGS, GV_ADD), 0);
         }
     }
+#endif
 
     subpattern_re = re_op_compile_wrapper(sv_2mortal(newSVpvn(subpattern, len)),
                                         /* Like in op.c, we copy the compile
                                          * time pm flags to the rx ones */
                                         (flags & RXf_PMf_COMPILETIME), flags);
+#ifdef DEBUGGING
     if (turned_off_PL_debug) {
         PL_debug |= DEBUG_r_FLAG;
     }
     else if (turned_off_RE_DEBUG_FLAGS) {
         sv_setuv_mg(get_sv(RE_DEBUG_FLAGS, GV_ADD), re_debug_flags);
     }
+#endif
 
     assert(subpattern_re);  /* Should have died if didn't compile successfully */
     return subpattern_re;
@@ -23067,9 +23074,11 @@ STATIC I32
 S_execute_wildcard(pTHX_ REGEXP * const prog, char* stringarg, char *strend,
 	 char *strbeg, SSize_t minend, SV *screamer, U32 nosave)
 {
+    I32 result;
+
+#ifdef DEBUGGING
     bool turned_off_PL_debug = FALSE;
     bool turned_off_RE_DEBUG_FLAGS = FALSE;
-    I32 result;
     GET_RE_DEBUG_FLAGS_DECL;
 
     if (! isDEBUG_WILDCARD) {
@@ -23082,18 +23091,21 @@ S_execute_wildcard(pTHX_ REGEXP * const prog, char* stringarg, char *strend,
             sv_setuv_mg(get_sv(RE_DEBUG_FLAGS, GV_ADD), 0);
         }
     }
+#endif
 
     PERL_ARGS_ASSERT_EXECUTE_WILDCARD;
 
     result = CALLREGEXEC(prog, stringarg, strend, strbeg, minend, screamer,
                          NULL, nosave);
 
+#ifdef DEBUGGING
     if (turned_off_PL_debug) {
         PL_debug |= DEBUG_r_FLAG;
     }
     else if (turned_off_RE_DEBUG_FLAGS) {
         sv_setuv_mg(get_sv(RE_DEBUG_FLAGS, GV_ADD), re_debug_flags);
     }
+#endif
 
     return result;
 }
