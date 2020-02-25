@@ -23028,9 +23028,9 @@ S_compile_wildcard(pTHX_ const char * subpattern, const STRLEN len,
     REGEXP * subpattern_re;
 
 #ifdef DEBUGGING
-    GET_RE_DEBUG_FLAGS_DECL;
     bool turned_off_PL_debug = FALSE;
     bool turned_off_RE_DEBUG_FLAGS = FALSE;
+    GET_RE_DEBUG_FLAGS_DECL;
 #endif
 
     PERL_ARGS_ASSERT_COMPILE_WILDCARD;
